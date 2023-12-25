@@ -13,7 +13,14 @@
                 <a class="navbar-brand" href="/">ОАИС</a>
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ml-auto">
-                        <li class="nav-item"><a class="nav-link" href="/login">Авторизация</a></li>
+                        {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin() %}
+                            <li class="nav-item"><a class="nav-link" href="/admin_area">Панель Администратора</a></li>
+                        {% endif %}
+                            <li class="nav-item"><a class="nav-link" href="/logout">Выйти</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link" href="/login">Авторизация</a></li>
+                        {% endif %}
                         <li class="nav-item"><a class="nav-link" href="/reports">Ежедневные отчеты</a></li>
                         <li class="nav-item"><a class="nav-link" href="/overtime">Переработки</a></li>
                         <li class="nav-item"><a class="nav-link" href="/profile">Личная страница</a></li>

@@ -23,20 +23,43 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
+
+
+
+class Roles(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String, nullable=False)
+    label = db.Column(db.String, nullable=False)
+
+    def __repr__(self):
+        return f'<roles {self.id}>'
+
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
     psw = db.Column(db.String(500), nullable=True)
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    roles_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     def __repr__(self):
         return f"<users {self.id}>"
+    
+    # Добавьте связь с моделью Roles
+    role = db.relationship('Roles')
+
+    def is_admin(self):
+        return self.role and self.role.code == 'admin'
+
+    def is_manager(self):
+        return self.role and self.role.code == 'manager'
+
+    def is_employee(self):
+        return self.role and self.role.code == 'employee'
+
 
 class Profiles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=True)
-    old = db.Column(db.Integer)
-    city = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     def __repr__(self):
         return f"<profiles {self.id}>"
@@ -58,21 +81,19 @@ def register():
         try:
             # заносим данные пользователя в бд с кешом пароля
             hash = generate_password_hash(request.form['psw'])
-            u = Users(email=request.form['email'], psw=hash)
+            u = Users(email=request.form['email'], psw=hash, roles_id=request.form['role'])
             db.session.add(u)
             db.session.flush()
             # добавляем данные в профайлес
-            p = Profiles(name=request.form['name'], old=request.form['old'],
-                         city=request.form['city'], user_id = u.id)
+            p = Profiles(name=request.form['name'], user_id = u.id)
             db.session.add(p)
             db.session.commit() 
             print(f"Пользователь зарегестрирован {request.form['email']}")
-        except:
+        except Exception as e:
             # если ошибки, то откатываем состояние
             db.session.rollback()
-            print("Ошибка записи пользователя в БД")
+            print(f"Ошибка записи пользователя в БД: {e}")
 
-    
     return render_template("register.html", title="Регистрация")
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -94,10 +115,13 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/secret_page')
+@app.route('/admin_area')
 @login_required
-def secret_page():
-    return 'Только для аутентифицированных пользователей!'
+def admin_area():
+    if not current_user.is_admin():
+        flash('Доступ разрешен только администраторам!')
+        return redirect(url_for('index'))
+    return render_template('admin_area.html')
 
 
 if __name__ == "__main__":
