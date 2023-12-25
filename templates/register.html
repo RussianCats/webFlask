@@ -1,15 +1,43 @@
-{% extends 'layout.html' %}
-{% block content %}
+
+
+{% extends 'base.html' %}
+
+{% block title %}
+Регистрация
+{% endblock %}
+
+{% block body %}
 {% for cat, msg in get_flashed_messages(True) %}
     <div class="flash {{cat}}">{{msg}}</div>
 {% endfor %}
+
+<!-- Код для регистрации -->
 <form action="" method="post" class="form-contact">
-    <p><label>Имя: </label> <input type="text" name="name" value="" required />
-    <p><label>Возраст: </label> <input type="text" name="old" value="" requied />
-    <p><label>Город: </label> <input type="text" name="city" value="" requied />
-    <p><label>Email: </label> <input type="text" name="email" value="" required />
-    <p><label>Пароль: </label> <input type="password" name="psw" value="" required />
-    <p><label>Повтор пароля: </label> <input type="password" name="psw2" value="" required />
-    <p><input type="submit" value="Регистрация" />
+    <div class="mb-3">
+        <label for="name" class="form-label">Имя:</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="mb-3">
+        <label for="old" class="form-label">Возраст:</label>
+        <input type="text" class="form-control" id="old" name="old" required>
+    </div>
+    <div class="mb-3">
+        <label for="city" class="form-label">Город:</label>
+        <input type="text" class="form-control" id="city" name="city" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+        <label for="psw" class="form-label">Пароль:</label>
+        <input type="password" class="form-control" id="psw" name="psw" required>
+    </div>
+    <div class="mb-3">
+        <label for="psw2" class="form-label">Повтор пароля:</label>
+        <input type="password" class="form-control" id="psw2" name="psw2" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Регистрация</button>
 </form>
+
 {% endblock %}

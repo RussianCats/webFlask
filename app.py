@@ -1,8 +1,7 @@
 import datetime
-import email
-import os
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -11,12 +10,20 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:5892@localhost/web'
+app.config['SECRET_KEY'] = 'd2a32dd5c96845fb890beabd3896f3e0'
+
 db = SQLAlchemy(app)
 
+# После инициализации db
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
+# Настройка функции загрузчика пользователя
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
 
-
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
     psw = db.Column(db.String(500), nullable=True)
@@ -33,10 +40,16 @@ class Profiles(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     def __repr__(self):
         return f"<profiles {self.id}>"
-
+    
+@app.route("/index")
 @app.route("/")
 def index():
-    return render_template("index.html", title="Главная")
+    if current_user.is_authenticated:
+        # Логика для авторизованных пользователей
+        return render_template('index.html', is_authenticated=True)
+    else:
+        # Логика для неавторизованных пользователей
+        return render_template('index.html', is_authenticated=False)
 
 @app.route("/register", methods=("POST", "GET"))
 def register():
@@ -62,6 +75,29 @@ def register():
     
     return render_template("register.html", title="Регистрация")
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['psw']
+        user = Users.query.filter_by(email=email).first()
+        if user and check_password_hash(user.psw, password):
+            print("Пользователь авторизован")
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Неверный логин или пароль')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/secret_page')
+@login_required
+def secret_page():
+    return 'Только для аутентифицированных пользователей!'
 
 
 if __name__ == "__main__":

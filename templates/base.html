@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">ОАИС</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item"><a class="nav-link" href="/login">Авторизация</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reports">Ежедневные отчеты</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/overtime">Переработки</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/profile">Личная страница</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main  class="container flex-grow-1 mt-5">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center">
+        <div class="text-center p-3" style="background-color: #2F4F4F">
+            © 2023 МойСайт
+        </div>
+    </footer>
+
+    <!-- Подключение Bootstrap JavaScript (необходимо для работы компонентов, таких как модальные окна и т.д.) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
