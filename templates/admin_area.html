@@ -1,3 +1,6 @@
+
+
+
 {% extends 'base.html' %}
 
 {% block title %}
@@ -6,4 +9,122 @@
 
 {% block body %}
 <h1>Admin Panel</h1>
+
+<div class="text-center">
+    <!-- Кнопка для отображения формы регистрации -->
+    <button id="toggleFormButton" class="btn btn-primary">Форма регистрации</button>
+
+    <!-- Кнопка для отображения списка пользователей -->
+    <button id="toggleUsersListButton" class="btn btn-primary">Список пользователей</button>
+
+    <!-- Кнопка для удаления пользователей -->
+    <button id="toggleDeleteUsers" class="btn btn-primary">Удалить пользователя</button>
+</div>
+
+
+
+<!-- Форма регистрации -->
+<div id="registrationForm" class="toggleableElement mt-3 mb-3" style="display: none;">
+    <form action="" method="post" class="form-contact">
+        <div class="mb-3">
+            <label for="name" class="form-label">Имя:</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label">Роль:</label>
+            <select class="form-control" id="role" name="role" required>
+                <option value="1">Администратор</option>
+                <option value="2">Руководитель</option>
+                <option value="3">Сотрудник</option>
+            </select>
+        </div>    
+        <div class="mb-3">
+            <label for="login" class="form-label">Логин:</label>
+            <input type="login" class="form-control" id="login" name="login" required>
+        </div>
+        <div class="mb-3">
+            <label for="psw" class="form-label">Пароль:</label>
+            <input type="password" class="form-control" id="psw" name="psw" required>
+        </div>
+        <div class="mb-3">
+            <label for="psw2" class="form-label">Повтор пароля:</label>
+            <input type="password" class="form-control" id="psw2" name="psw2" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Регистрация</button>
+    </form>
+</div>
+
+
+<!-- Элемент для отображения списка пользователей -->
+<div id="usersList" class="toggleableElement mt-3 mb-3" style="display: none;">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>User ID</th>
+                <th>Login</th>
+                <th>Registration Date</th>
+                <th>Role</th>
+                <th>Profile Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.login }}</td>
+                <td>{{ user.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ user.role.label if user.role else 'N/A' }}</td>
+                <td>{{ user.profiles.name if user.profiles else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="deleteUserForm" class="toggleableElement mt-3 mb-3" style="display: none;">
+    <!-- Форма для удаления пользователя -->
+    <form action="{{ url_for('delete_user') }}" method="post">
+        <div class="form-group">
+            <label for="deleteUserId">ID пользователя для удаления:</label>
+            <input type="number" class="form-control" id="deleteUserId" name="userId" required>
+        </div>
+        <button type="submit" class="btn btn-danger">Удалить пользователя</button>
+    </form>
+</div>
+
+
+<script>
+    var currentlyVisible = null; // Для отслеживания текущего отображаемого элемента
+
+    function toggleDisplay(showElementId) {
+        var elementToShow = document.getElementById(showElementId);
+
+        // Если текущий элемент видим, скрыть его
+        if (currentlyVisible) {
+            currentlyVisible.style.display = 'none';
+        }
+
+        // Если нажатая кнопка соответствует уже видимому элементу, сбросить текущий элемент
+        if (currentlyVisible === elementToShow) {
+            currentlyVisible = null;
+        } else {
+            // Показать новый элемент
+            elementToShow.style.display = 'block';
+            currentlyVisible = elementToShow;
+        }
+    }
+
+    document.getElementById('toggleFormButton').addEventListener('click', function() {
+        toggleDisplay('registrationForm');
+    });
+
+    document.getElementById('toggleUsersListButton').addEventListener('click', function() {
+        toggleDisplay('usersList');
+    });
+
+    document.getElementById('toggleDeleteUsers').addEventListener('click', function() {
+        toggleDisplay('deleteUserForm');
+    });
+</script>
+
 {% endblock %}
