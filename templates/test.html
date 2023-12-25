@@ -1,0 +1,29 @@
+<!-- users.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Список пользователей</title>
+</head>
+<body>
+    <h2>Пользователи</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Логин</th>
+            <th>ФИО</th>
+            <th>ID Роли</th>
+            <th>Заблокирован</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.login }}</td>
+            <td>{{ user.fio }}</td>
+            <td>{{ user.id_role }}</td>
+            <td>{{ 'Да' if user.is_blocked else 'Нет' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
