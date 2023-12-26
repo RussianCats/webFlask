@@ -6,11 +6,9 @@
 
 {% block body %}
     {% if is_authenticated %}
-        <p class="mb-3">Привет, {{ current_user.username }}!</p>
         <a href="{{ url_for('logout') }}" class="btn btn-secondary">Выйти</a>
     {% else %}
         <p class="mb-3">Привет, гость!</p>
         <a href="{{ url_for('login') }}" class="btn btn-primary">Войти</a>
-        <a href="{{ url_for('register') }}" class="btn btn-success">Регистрация</a>
     {% endif %}
 {% endblock %}

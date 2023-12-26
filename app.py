@@ -59,12 +59,27 @@ class Users(db.Model, UserMixin):
 
     def is_employee(self):
         return self.role and self.role.code == 'employee'
+    
+class OvertimeProjectTasks(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    project_name = db.Column(db.String(255), nullable=False)
+    task_description = db.Column(db.Text, nullable=False)
+    task_date = db.Column(db.Date, nullable=False)
+    day_type = db.Column(db.String(50), nullable=False)
+    hours_worked = db.Column(db.Numeric(5, 1), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    def __repr__(self):
+        return f"<overtime_project_tasks {self.id}>"
+
+
 
 
 class Profiles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
     def __repr__(self):
         return f"<profiles {self.id}>"
     
@@ -78,27 +93,7 @@ def index():
         # Логика для неавторизованных пользователей
         return render_template('index.html', is_authenticated=False)
 
-@app.route("/register", methods=("POST", "GET"))
-def register():
-    if request.method == "POST":
-        # здесь должна быть проверка корректности введенных данных
-        try:
-            # заносим данные пользователя в бд с кешом пароля
-            hash = generate_password_hash(request.form['psw'])
-            u = Users(login=request.form['login'], psw=hash, roles_id=request.form['role'])
-            db.session.add(u)
-            db.session.flush()
-            # добавляем данные в профайлес
-            p = Profiles(name=request.form['name'], user_id = u.id)
-            db.session.add(p)
-            db.session.commit() 
-            print(f"Пользователь зарегестрирован {request.form['login']}")
-        except Exception as e:
-            # если ошибки, то откатываем состояние
-            db.session.rollback()
-            print(f"Ошибка записи пользователя в БД: {e}")
 
-    return render_template("register.html", title="Регистрация")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -166,7 +161,6 @@ def delete_user():
 
     user_id = request.form.get('userId')
     user = Users.query.get(user_id)
-
     if user:
         try:
             # Удаляем связанный профиль, если он существует
@@ -184,6 +178,46 @@ def delete_user():
         flash('Пользователь не найден')
 
     return redirect(url_for('admin_area'))
+
+
+@app.route('/overtime', methods=("POST", "GET"))
+@login_required
+def overtime():
+    return render_template('overtime.html')
+
+
+@app.route('/submit_table_overtime', methods=['POST'])
+@login_required
+def submit_table_overtime():
+    projects = request.form.getlist('project[]')
+    tasks = request.form.getlist('task[]')
+    dates = request.form.getlist('date[]')
+    day_types = request.form.getlist('dayType[]')
+    hours_worked_list = request.form.getlist('overtimeHours[]')
+    user_id = current_user.id 
+    
+    try:
+
+        for i in range(len(projects)):
+            task_date = datetime.strptime(dates[i], '%d.%m.%Y')
+            new_task = OvertimeProjectTasks(
+                project_name=projects[i],
+                task_description=tasks[i],
+                task_date=task_date,
+                day_type=day_types[i],
+                hours_worked=float(hours_worked_list[i]),
+                user_id=user_id  # или другой способ получения ID пользователя
+            )
+            db.session.add(new_task)
+        flash(f"Пользователь {user_id} успешно занес данные по переработкам")
+    except Exception as e:
+        # Если возникают ошибки, то откатываем состояние
+        db.session.rollback()
+        flash(f"Ошибка записи переаботок в БД: {e}")
+
+    db.session.commit()
+
+    return redirect(url_for('overtime'))  # Перенаправление на страницу с задачами
 
 if __name__ == "__main__":
     app.run(debug=True)

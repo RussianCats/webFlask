@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Изменяемая таблица{% endblock %}
+
+
+{% block body %}
+<style>
+    .toggle-button {
+        background-color: transparent;
+        border: none;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .task-column {
+        width: 40%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .task-content {
+        height: auto;
+        max-height: 100%;
+        overflow: auto;
+    }
+
+    .narrow-column {
+        width: 7%;
+    }
+</style>
+<div class="container">
+    <form action="{{ url_for('submit_table_overtime') }}" method="post">
+        <table class="table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Проект</th>
+                    <th class="task-column">Задача, которую выполнил</th>
+                    <th>Дата</th>
+                    <th>Форма дня</th>
+                    <th class="narrow-column">Количество часов</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- сюда заносятся  таблицы -->
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" onclick="addRow()">Добавить строку</button>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script> <!-- Русская локализация -->
+
+<script>
+    flatpickr(".datepicker", {
+        enableTime: false,
+        dateFormat: "Y-m-d"
+    });
+
+    function deleteRow(button) {
+        var row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
+
+    function addRow() {
+        var table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+        var newRow = table.insertRow(table.rows.length);
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+        var cell5 = newRow.insertCell(4);
+        var cell6 = newRow.insertCell(5);
+        cell1.innerHTML = '<input type="text" class="form-control" name="project[]">';
+        cell2.className = 'task-column';
+        cell2.innerHTML = `
+            <div class="task-content">
+                <textarea class="form-control" name="task[]" rows="3"></textarea>
+            </div>
+        `;
+        cell3.innerHTML = '<input type="text" class="form-control datepicker" name="date[]">';
+        cell4.innerHTML = `
+            <select class="form-control" name="dayType[]">
+                <option value="Выходной">Выходной</option>
+                <option value="Рабочий">Рабочий</option>
+                <option value="Отпускной">Отпускной</option>
+                <option value="Больничный">Больничный</option>
+            </select>
+        `;
+        cell5.className = 'narrow-column';
+        cell5.innerHTML = '<input type="number" class="form-control" name="overtimeHours[]" step="0.5" style="max-width: 100px;">';
+        cell6.innerHTML = '<button type="button" class="btn btn-danger" onclick="deleteRow(this)">Удалить</button>';
+        flatpickr(".datepicker", {
+            enableTime: false,
+            dateFormat: "d.m.Y",
+            locale: "ru"
+        });
+
+    }
+</script>
+{% endblock %}
+
