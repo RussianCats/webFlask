@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Просмотр переработок
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Поле</h1>
+
+    {% if user.is_admin() or user.is_manager() %}
+    <h1>Вы администратор или менеджер</h1>
+        <form action="{{ url_for('') }}" method="post"></form>
+        <!-- Действие, доступное только менеджерам и администраторам -->
+    {% elif user.is_employee() %}
+    <h1>Вы пользователь</h1>
+        <form action="{{ url_for('') }}" method="post"></form>
+        <!-- Действие, доступное только пользователям -->
+    {% endif %}
+</div>
+{% endblock %}

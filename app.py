@@ -4,7 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import Config
 
 
@@ -183,10 +183,11 @@ def delete_user():
 @app.route('/overtime', methods=("POST", "GET"))
 @login_required
 def overtime():
+
     return render_template('overtime.html')
 
 
-@app.route('/submit_table_overtime', methods=['POST'])
+@app.route('/submit_table_overtime', methods=['POST', "GET"])
 @login_required
 def submit_table_overtime():
     projects = request.form.getlist('project[]')
@@ -217,7 +218,36 @@ def submit_table_overtime():
 
     db.session.commit()
 
-    return redirect(url_for('overtime'))  # Перенаправление на страницу с задачами
+    return render_template('overtime.html') # Перенаправление на страницу с задачами
+
+@app.route('/action_overtime_custom_range', methods=['POST'])
+@login_required
+def action_overtime_custom_range():
+    # Получаем даты из формы
+    start_date_str = request.form.get('startDate')
+    end_date_str = request.form.get('endDate')
+
+    # Преобразовываем строки в объекты datetime
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+    # Запрашиваем данные за выбранный диапазон
+    overtime_project_tasks = OvertimeProjectTasks.query.filter(
+        OvertimeProjectTasks.user_id == current_user.id,
+        OvertimeProjectTasks.task_date.between(start_date, end_date)
+    ).all()
+
+    # Возвращаем шаблон с данными
+    return render_template('overtime.html', data_ovwertimes=overtime_project_tasks)
+
+
+
+
+@app.route('/view_overtime', methods=['GET', 'POST'])
+def view_overtime():
+    # Обработка данных из формы и логика для нового шаблона
+    return render_template('view_overtime.html', user=current_user)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

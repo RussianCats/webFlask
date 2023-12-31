@@ -4,6 +4,99 @@
 
 
 {% block body %}
+
+
+<h1>Переработки</h1>
+
+
+<!-- див для логики кнопок, показывающие различные дествия по пререработкам -->
+<div class="text-center">
+ 
+    <!-- Кнопка для  формы добавления переработок через заполнение таблицы -->
+    <button id="toggleAddDataTable" class="btn btn-primary">Добавить</button>
+
+    <!-- Кнопка для формы загрузки через файлик xlsx -->
+    <button id="toggleDownload" class="btn btn-primary">Загрузить</button>
+
+    <!-- Кнопка для просмотреа переработок-->
+    <a href="{{ url_for('view_overtime') }}" class="btn btn-primary">Просмотр переработок</a>
+</div>
+
+<!-- форма добавления переработок путем заполнения таблицы -->
+<div id="formAddDataTable" class="toggleableElement container  mt-3 mb-3" style="display: none;">
+    <form action="{{ url_for('submit_table_overtime') }}" method="post">
+        <table class="table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Проект</th>
+                    <th class="task-column">Задача, которую выполнил</th>
+                    <th>Дата</th>
+                    <th>Форма дня</th>
+                    <th class="narrow-column">Количество часов</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- сюда заносятся  таблицы -->
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" onclick="addRow()">Добавить строку</button>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+    </form>
+</div>
+
+
+<div id="formDownload" class="toggleableElement container  mt-3 mb-3" style="display: none;">
+    <h1>В разаработке</h1>
+</div>
+
+<!-- 
+<div id="formViewData" class="toggleableElement container mt-3 mb-3" style="display: none;">
+    <form href="{{ url_for('view_overtime') }}" method="post">
+        выбор дипазона просмотра переработок
+        <div class="row">
+            <div class="col">
+                <label for="startDate">Начальная дата:</label>
+                <input type="text" class="form-control datepicker_data" name="startDate" id="startDate">
+            </div>
+            <div class="col">
+                <label for="endDate">Конечная дата:</label>
+                <input type="text" class="form-control datepicker_data" name="endDate" id="endDate">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Показать переработки</button>
+
+         таблица для просмотра переработок
+        <table class="table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Проект</th>
+                    <th class="task-column">Задача, которую выполнил</th>
+                    <th>Дата</th>
+                    <th>Форма дня</th>
+                    <th class="narrow-column">Количество часов</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data_ovwertime in data_ovwertimes %}
+                <tr>
+                    <td>{{ data_ovwertime.project_name }}</td>
+                    <td>{{ data_ovwertime.task_description }}</td>
+                    <td>{{ data_ovwertime.task_date }}</td>
+                    <td>{{ data_ovwertime.day_type }}</td>
+                    <td>{{ data_ovwertime.hours_worked }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table> 
+
+    </form>-->
+
+</div>
+
+
+<!-- скорипты для отображения добавления переработок -->
 <style>
     .toggle-button {
         background-color: transparent;
@@ -28,39 +121,73 @@
         width: 7%;
     }
 </style>
-<div class="container">
-    <form action="{{ url_for('submit_table_overtime') }}" method="post">
-        <table class="table" id="dataTable">
-            <thead>
-                <tr>
-                    <th>Проект</th>
-                    <th class="task-column">Задача, которую выполнил</th>
-                    <th>Дата</th>
-                    <th>Форма дня</th>
-                    <th class="narrow-column">Количество часов</th>
-                    <th>Действие</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- сюда заносятся  таблицы -->
-            </tbody>
-        </table>
-        <button type="button" class="btn btn-primary" onclick="addRow()">Добавить строку</button>
-        <button type="submit" class="btn btn-success">Сохранить</button>
-    </form>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script> <!-- Русская локализация -->
 
+
+<!-- скрипты для работы отображения перереработок 
 <script>
-    flatpickr(".datepicker", {
-        enableTime: false,
-        dateFormat: "Y-m-d"
+    $(document).ready(function() {
+        $('#overtimeForm').submit(function(e) {
+            e.preventDefault(); // Предотвращаем стандартное поведение отправки формы
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for("action_overtime_custom_range") }}',
+                data: $(this).serialize(),
+                success: function(response) {
+                    // Замена содержимого таблицы новыми данными
+                    $('#dataTable tbody').html(response);
+                },
+                error: function(error) {
+                    console.log("Ошибка AJAX: ", error);
+                }
+            });
+        });
     });
+</script> -->
+
+<!-- скрипт для работы логики кнопок -->
+<script>
+    var currentlyVisible = null; // Для отслеживания текущего отображаемого элемента
+
+    function toggleDisplay(showElementId) {
+        var elementToShow = document.getElementById(showElementId);
+
+        // Если текущий элемент видим, скрыть его
+        if (currentlyVisible) {
+            currentlyVisible.style.display = 'none';
+        }
+
+        // Если нажатая кнопка соответствует уже видимому элементу, сбросить текущий элемент
+        if (currentlyVisible === elementToShow) {
+            currentlyVisible = null;
+        } else {
+            // Показать новый элемент
+            elementToShow.style.display = 'block';
+            currentlyVisible = elementToShow;
+        }
+    }
+
+    document.getElementById('toggleAddDataTable').addEventListener('click', function() {
+        toggleDisplay('formAddDataTable');
+    });
+
+    document.getElementById('toggleDownload').addEventListener('click', function() {
+        toggleDisplay('formDownload');
+    });
+
+    // document.getElementById('toggleViewData').addEventListener('click', function() {
+    //     toggleDisplay('formViewData');
+    // });
+</script>
+
+<!-- скрипт для работы заполнения таблицы -->
+<script>
+ 
 
     function deleteRow(button) {
         var row = button.parentNode.parentNode;
@@ -101,7 +228,11 @@
             locale: "ru"
         });
 
+
+
     }
 </script>
+
+
 {% endblock %}
 
