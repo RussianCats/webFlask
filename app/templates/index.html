@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Flask App</title>
-</head>
-<body>
-    <h1>Welcome to my Flask app!</h1>
-</body>
-</html>
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Добро пожаловать на главную страницу</h1>
+<p>Это главная страница вашего приложения.</p>
+{% endblock %}

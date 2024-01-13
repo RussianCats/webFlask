@@ -1,7 +1,7 @@
 from logging import Manager
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-# from flask_login import LoginManager
+from flask_login import LoginManager
 
 from config import Config
 
@@ -10,6 +10,6 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
-# Manager = LoginManager(app)
+manager = LoginManager(app)
 
 from app import routes, models  
