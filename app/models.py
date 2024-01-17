@@ -1,4 +1,4 @@
-from app import db, manager
+from app import db
 from datetime import datetime
 from flask_login import UserMixin  # Убедитесь, что Flask-Login установлен
 
@@ -19,7 +19,7 @@ class User(db.Model, UserMixin):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     roles_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
-    role = db.relationship('Role', backref=db.backref('users', lazy=True))
+    role = db.relationship('Role', backref=db.backref('user', lazy=True))
 
     def __repr__(self):
         return f"<User {self.id}>"
@@ -34,8 +34,13 @@ class User(db.Model, UserMixin):
     def is_employee(self):
         return self.role and self.role.code == 'employee'
 
+class TestUser(db.Model, UserMixin):
+    __tablename__ = 'test_user'  # Указываем имя таблицы
 
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String, nullable=False)
+    psw = db.Column(db.String, nullable=False)
 
-@manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+    def __repr__(self):
+        return f'<TestUser {self.login}>'
+
