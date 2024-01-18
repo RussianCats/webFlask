@@ -5,21 +5,36 @@ from flask_login import UserMixin  # Убедитесь, что Flask-Login ус
 
 
 class Role(db.Model):
+    __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(50), nullable=False)
     label = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return f'<Role {self.id}>'
+    
+class Profile(db.Model):
+    __tablename__ = 'profiles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    # Опционально: добавьте связь с таблицей пользователей, если нужно
+    user = db.relationship('User', backref=db.backref('profiles', lazy=True))
+
+    def __repr__(self):
+        return f'<Profile {self.name}>'
 
 class User(db.Model, UserMixin):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), unique=True)
     psw = db.Column(db.String(500))
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    roles_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    roles_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
-    role = db.relationship('Role', backref=db.backref('user', lazy=True))
+    role = db.relationship('Role', backref=db.backref('users', lazy=True))
 
     def __repr__(self):
         return f"<User {self.id}>"
@@ -33,14 +48,4 @@ class User(db.Model, UserMixin):
 
     def is_employee(self):
         return self.role and self.role.code == 'employee'
-
-class TestUser(db.Model, UserMixin):
-    __tablename__ = 'test_user'  # Указываем имя таблицы
-
-    id = db.Column(db.Integer, primary_key=True)
-    login = db.Column(db.String, nullable=False)
-    psw = db.Column(db.String, nullable=False)
-
-    def __repr__(self):
-        return f'<TestUser {self.login}>'
 

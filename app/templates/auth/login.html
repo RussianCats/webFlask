@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Вход</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-warning" role="alert">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div class="row mb-3">
+            <label for="loginInput" class="col-sm-2 col-form-label">Login</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="loginInput" name="login">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="passwordInput" class="col-sm-2 col-form-label">Password</label>
+            <div class="col-sm-5">
+                <input type="password" class="form-control" id="passwordInput" name="password">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-2"><a href="{{ url_for('register') }}">Register</a></div>
+            <div class="col-sm-5">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

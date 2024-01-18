@@ -16,17 +16,26 @@
                 <a class="navbar-brand" href="#">ОАИС</a>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
+                        {% if current_user.is_authenticated and current_user.is_admin() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_panel') }}">Панель администратора</a>
+                        </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Главная</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('user_page') }}">Страница пользователя</a>
+                            <a class="nav-link" href="{{ url_for('work_report') }}">Отчет о проделанной работе</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('overtime_report') }}">Отчет по переработкам</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('work_report') }}">Отчет о проделанной работе</a>
+                            {% if current_user.is_authenticated %}
+                                <a class="nav-link" href="{{ url_for('user_page') }}">{{ current_user.login|upper }}</a>
+                            {% else %}
+                                <a class="nav-link" href="{{ url_for('login') }}">Вход</a>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>

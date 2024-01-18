@@ -11,5 +11,7 @@ app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 manager = LoginManager(app)
+manager.login_view = 'login'  
 
-from app import routes, models  
+
+from app import routes, models, auth 
