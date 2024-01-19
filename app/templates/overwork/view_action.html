@@ -1,0 +1,35 @@
+{% extends 'base_overwork.html' %}
+
+{% block content_over %}
+<div class="container mt-4">
+    <h2>Отчеты о переработке</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="col-2">Название проекта</th>
+                <th class="col-4">Описание задачи</th>
+                <th class="col-2">Дата задачи</th>
+                <th class="col-1">Тип дня</th>
+                <th class="col-1">Часы</th>
+                <th class="col-1">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.project_name }}</td>
+                <td class="text-truncate" style="max-width: 100px;">{{ report.task_description }}</td>
+                <td>{{ report.task_date.strftime('%d-%m-%Y') }}</td>
+                <td>{{ report.day_type }}</td>
+                <td>{{ report.hours_worked }}</td>
+                <td>
+                    <form action="{{ url_for('delete_action', report_id=report.id) }}" method="post">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

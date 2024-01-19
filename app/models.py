@@ -49,3 +49,19 @@ class User(db.Model, UserMixin):
     def is_employee(self):
         return self.role and self.role.code == 'employee'
 
+
+class OvertimeReport(db.Model):
+    __tablename__ = 'overtime_report'
+
+    id = db.Column(db.Integer, primary_key=True)
+    project_name = db.Column(db.String(255), nullable=False)
+    task_description = db.Column(db.Text, nullable=False)
+    task_date = db.Column(db.Date, nullable=False)
+    day_type = db.Column(db.String(50), nullable=False)
+    hours_worked = db.Column(db.Numeric(5, 1), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('overtime_report', lazy=True))
+
+    def __repr__(self):
+        return f'<OvertimeReport {self.id}, {self.project_name}>'

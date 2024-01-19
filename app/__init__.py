@@ -14,4 +14,4 @@ manager = LoginManager(app)
 manager.login_view = 'login'  
 
 
-from app import routes, models, auth 
+from app import routes, models, auth , forms

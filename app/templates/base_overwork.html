@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .centered-text {
+        text-align: center; /* Центрирует текст */
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковое меню -->
+        <div class="container">
+            <div class="center-buttons">
+                <div class="list-group list-group-horizontal">
+                    <a href="{{ url_for('view_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Просмотр</a>
+                    <a href="{{ url_for('add_action') }}" class="list-group-item list-group-item-action  centered-text custom-btn-color">Добавить</a>
+                    <a href="{{ url_for('upload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Загрузить</a>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+<!-- Основной контент -->
+<main class="container mt-4 flex-grow-1">
+    {% block content_over %}{% endblock %}
+</main>
+
+{% endblock %}

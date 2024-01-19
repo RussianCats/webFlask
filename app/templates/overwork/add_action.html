@@ -1,0 +1,32 @@
+{% extends 'base_overwork.html' %}
+
+{% block content_over %}
+<div>
+    <h2>Добавить отчет о переработке</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <div class="mt-1 form-group">
+            {{ form.project_name.label }} {{ form.project_name(class="form-control") }}
+        </div>
+        <div class="mt-1 form-group">
+            {{ form.task_description.label }} {{ form.task_description(class="form-control") }}
+        </div>
+
+        <div class="row">
+            <div class="mt-1 col-md-4 form-group">
+                {{ form.task_date.label }} {{ form.task_date(class="form-control") }}
+            </div>
+            <div class="mt-1 col-md-4 form-group">
+                {{ form.day_type.label }} {{ form.day_type(class="form-control") }}
+            </div>
+            <div class="mt-1 col-md-4 form-group">
+                {{ form.hours_worked.label }} {{ form.hours_worked(class="form-control") }}
+            </div>
+        </div>
+
+        <div class="mt-4 form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
