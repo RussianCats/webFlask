@@ -1,6 +1,8 @@
 {% extends 'base_overwork.html' %}
 
 {% block content_over %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
+
 <div>
     <h2>Добавить отчет о переработке</h2>
     <form action="" method="post">
@@ -13,8 +15,8 @@
         </div>
 
         <div class="row">
-            <div class="mt-1 col-md-4 form-group">
-                {{ form.task_date.label }} {{ form.task_date(class="form-control") }}
+            <div class="mt-1 col-md-4 form-group ">
+                {{ form.task_date.label }} {{ form.task_date(class="form-control datepicker") }}
             </div>
             <div class="mt-1 col-md-4 form-group">
                 {{ form.day_type.label }} {{ form.day_type(class="form-control") }}
@@ -29,4 +31,19 @@
         </div>
     </form>
 </div>
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> <!-- Убедитесь, что jQuery подключен -->
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.ru.min.js') }}"></script>
+
+<script>
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'dd.mm.yyyy',
+            language: 'ru',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
 {% endblock %}

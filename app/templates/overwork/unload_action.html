@@ -1,5 +1,57 @@
 {% extends 'base_overwork.html' %}
 
 {% block content_over %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
 
+<div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-warning" role="alert">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <h2>Отчеты о переработке</h2>
+
+    <form action="{{ url_for('unload_action') }}" method="post">
+        <div class="row">
+            <!-- Начальная дата -->
+            <div class="col-md-6 form-group">
+                <label for="start_date">Начальная дата:</label>
+                <input type="text" id="start_date" name="start_date" required class="form-control datepicker">
+            </div>
+            
+            <!-- Конечная дата -->
+            <div class="col-md-6 form-group">
+                <label for="end_date">Конечная дата:</label>
+                <input type="text" id="end_date" name="end_date" required class="form-control datepicker">
+            </div>
+        </div>
+
+        <!-- Кнопка выгрузить -->
+        <div class="mt-3">
+            <input type="submit" value="Выгрузить" class="btn btn-primary">
+        </div>
+    </form>
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> <!-- Убедитесь, что jQuery подключен -->
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.ru.min.js') }}"></script>
+
+<script>
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'dd.mm.yyyy',
+            language: 'ru',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+    </script>
 {% endblock %}
