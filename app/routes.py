@@ -1,9 +1,11 @@
-from flask import  render_template, redirect, flash, url_for
+from flask import  render_template, redirect, flash, url_for, send_file
 from app import app, db
-from app.models import User, OvertimeReport
+from app.models import User, OvertimeReport, Profile
 from app.auth import role_required, login_required, current_user
 from app.forms import OvertimeReportForm
-
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from io import BytesIO
 
 
 
@@ -17,11 +19,7 @@ def index():
 
 
 
-@app.route('/admin_panel', methods=['GET', 'POST'])
-@login_required  
-@role_required('is_admin')
-def admin_panel():
-    return render_template('index.html')
+
 
 @app.route('/user_page', methods=['GET', 'POST'])
 def user_page():
@@ -82,7 +80,63 @@ def add_action():
 
     return render_template('/overwork/add_action.html', title='Add Overtime Report', form=form)
 
-
+# загрузить
 @app.route('/overwork/upload_action', methods=['GET', 'POST'])
 def upload_action():
     return render_template('overwork/upload_action.html')
+
+# выгрузить
+@app.route('/overwork/unload_action', methods=['GET', 'POST'])
+@login_required
+def unload_action():
+    # Получение данных из БД
+    # Извлечение записей с информацией о профиле
+    reports = db.session.query(
+        OvertimeReport,
+        Profile.name
+    ).join(Profile, OvertimeReport.user_id == Profile.user_id).all()
+
+    
+    # Создание рабочей книги и листа
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Overtime Reports"
+    
+    # Заголовки для файла Excel
+    columns = [
+        ('ФИО', 10),
+        ('Проект', 20),
+        ('Задача, которую выполнял', 30),
+        ('Дата', 15),
+        ('Выходной или рабочий день', 15),
+        ('Количество сверхурочных часов ', 15),
+    ]
+    
+    # Добавление заголовков в лист
+    for idx, (col_name, col_width) in enumerate(columns, 1):
+        cell = ws.cell(row=1, column=idx, value=col_name)
+        ws.column_dimensions[get_column_letter(idx)].width = col_width
+    
+    # Добавление данных в лист
+    for row_idx, (report, profile_name) in enumerate(reports, 2):
+        ws.cell(row=row_idx, column=1, value=profile_name)  # Теперь здесь ФИО
+        ws.cell(row=row_idx, column=2, value=report.project_name)
+        ws.cell(row=row_idx, column=3, value=report.task_description)
+        ws.cell(row=row_idx, column=4, value=report.task_date.strftime('%d.%m.%Y'))
+        ws.cell(row=row_idx, column=5, value=report.day_type)
+        ws.cell(row=row_idx, column=6, value=float(report.hours_worked))
+    
+    # Сохранение файла Excel в памяти
+    virtual_workbook = BytesIO()
+    wb.save(virtual_workbook)
+    
+    # Отправка файла пользователю
+    virtual_workbook.seek(0)
+    return send_file(virtual_workbook, as_attachment=True, download_name='overtime_report.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@app.route('/admin_panel', methods=['GET', 'POST'])
+@login_required  
+@role_required('is_admin')
+def admin_panel():
+    return render_template('admin_panel.html')
