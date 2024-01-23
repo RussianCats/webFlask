@@ -19,15 +19,21 @@
     <form action="{{ url_for('unload_action') }}" method="post">
         <div class="row">
             <!-- Начальная дата -->
-            <div class="col-md-6 form-group">
+            <div class="col-md-4 form-group">
                 <label for="start_date">Начальная дата:</label>
                 <input type="text" id="start_date" name="start_date" required class="form-control datepicker">
             </div>
             
             <!-- Конечная дата -->
-            <div class="col-md-6 form-group">
+            <div class="col-md-4 form-group">
                 <label for="end_date">Конечная дата:</label>
                 <input type="text" id="end_date" name="end_date" required class="form-control datepicker">
+            </div>
+
+            <!-- Нормальное месячное время -->
+            <div class="col-md-4 form-group">
+                <label for="number_hours">Нормальное месячное время:</label>
+                <input type="number" id="number_hours" name="number_hours" required class="form-control" min="0" step="1">
             </div>
         </div>
 

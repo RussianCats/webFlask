@@ -50,7 +50,7 @@ def register():
                 "manager": 2,
                 "employee": 3
             }
-            role_id = dic_roles[f"{request.form.get("role")}"] 
+            role_id = dic_roles[f"{request.form.get('role')}"] 
             hash_psw = generate_password_hash(password)
             new_user = User(login=login, psw=hash_psw, roles_id=role_id)
             # сохраняем нового пользователя

@@ -18,9 +18,9 @@ class Profile(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    working_day = db.Column(db.Numeric, nullable=False)  # Добавленный столбец
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    # Опционально: добавьте связь с таблицей пользователей, если нужно
     user = db.relationship('User', backref=db.backref('profiles', lazy=True))
 
     def __repr__(self):

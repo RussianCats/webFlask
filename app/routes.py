@@ -93,6 +93,21 @@ def add_action():
 def upload_action():
     return render_template('overwork/upload_action.html')
 
+
+def calculate_k(tpr, tn, tc):
+    """
+    tпр - суммарное количество часов (время переработок)
+    tн - нормальное месячное время - количество рабочих часов по производственному календарю
+    tк - ставка на которой сотрудник работает
+    """
+    if tn == 0:
+        raise ValueError("Normal monthly working hours (tn) cannot be zero.")
+    if tc < 0 or tc > 1:
+        raise ValueError("The rate (tc) must be between 0 and 1.")
+
+    k = 1 + (2 * tpr) / (tn * tc)
+    return k
+
 # выгрузить
 @app.route('/overwork/unload_action', methods=['GET', 'POST'])
 @login_required
@@ -101,6 +116,7 @@ def unload_action():
     if request.method == 'POST':
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
+        number_hours_int = int(request.form.get('number_hours'))
 
         # Попытка преобразования строк в объекты datetime
         try:
@@ -120,11 +136,14 @@ def unload_action():
         # Извлечение записей в заданном диапазоне дат
         reports = db.session.query(
             OvertimeReport,
-            Profile.name
+            Profile.name,
+            Profile.working_day
         ).join(Profile, OvertimeReport.user_id == Profile.user_id)\
         .filter(OvertimeReport.task_date >= start_date, OvertimeReport.task_date <= end_date)\
         .order_by(Profile.name, OvertimeReport.task_date)\
         .all()
+
+                
 
         
         # Создание рабочей книги и листа
@@ -141,7 +160,7 @@ def unload_action():
             'Дата',
             'Выходной или рабочий день',
             'Количество сверхурочных часов',
-            'Коэффициент '
+            'Коэффициент'
         ]
 
         # Добавление заголовков в лист
@@ -150,9 +169,17 @@ def unload_action():
             ws.cell(row=1, column=idx, value=col_name)
             idx += 1
 
+        # Словарь для хранения общего количества сверхурочных часов для каждого ФИО
+        total_hours_per_profile = {}  
+        # Словарь для хранения ставки сотрудника
+        profile_working_day = {}
+
         # Добавление данных в лист
         row_idx = 2
-        for report, profile_name in reports:
+        for report, profile_name, working_day in reports:
+            profile_working_day[profile_name] = working_day
+            total_hours_per_profile.setdefault(profile_name, 0)
+            total_hours_per_profile[profile_name] += report.hours_worked
             ws.cell(row=row_idx, column=1, value=row_idx - 1)
             ws.cell(row=row_idx, column=2, value=profile_name)  
             ws.cell(row=row_idx, column=3, value=report.project_name)
@@ -167,7 +194,7 @@ def unload_action():
         fio_ranges = {}
         row_idx = 2
         prev_profile_name = None
-        for idx, (report, profile_name) in enumerate(reports, start=1):
+        for idx, (report, profile_name, working_day) in enumerate(reports, start=1):
             if profile_name != prev_profile_name:
                 if prev_profile_name is not None:
                     fio_ranges[prev_profile_name]['end'] = row_idx - 1
@@ -176,7 +203,6 @@ def unload_action():
             
             ws.cell(row=row_idx, column=1, value=idx)
             ws.cell(row=row_idx, column=2, value=profile_name)
-            # ... [остальные поля]
             row_idx += 1
         
         # Закрытие последнего диапазона
@@ -185,12 +211,19 @@ def unload_action():
 
         # Объединение ячеек для каждого диапазона ФИО в столбце 'Коэффициент'
         coef_column = len(columns)  # Номер столбца 'Коэффициент' (последний столбец)
+        # При добавлении данных в лист:
         for fio, rng in fio_ranges.items():
             start = rng['start']
             end = rng['end']
-            if start != end:  # Нет нужды объединять одиночные ячейки
+            tpr = total_hours_per_profile[fio]
+                        # Предполагается, что profile_working_day хранит ставку сотрудника
+            tc = profile_working_day[fio]  
+            tn = number_hours_int
+            k_value = calculate_k(tpr, tn, tc)
+
+            if start != end:
                 ws.merge_cells(start_row=start, start_column=coef_column, end_row=end, end_column=coef_column)
-                ws.cell(row=start, column=coef_column, value='[здесь должно быть число]')  
+            ws.cell(row=start, column=coef_column, value=k_value)
 
 
         # Сохранение файла Excel в памяти
