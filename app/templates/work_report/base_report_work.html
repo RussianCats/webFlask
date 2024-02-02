@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .centered-text {
+        text-align: center; /* Центрирует текст */
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковое меню -->
+        <div class="container">
+            <div class="center-buttons">
+                <div class="list-group list-group-horizontal">
+                    <a href="{{ url_for('work_report_view_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Просмотр</a>
+                    <a href="{{ url_for('work_report_add_action') }}" class="list-group-item list-group-item-action  centered-text custom-btn-color">Добавить отчет</a>
+                    <a href="{{ url_for('work_report_add_project') }}" class="list-group-item list-group-item-action  centered-text custom-btn-color">Добавить проект</a>
+                    {% if current_user.is_authenticated and (current_user.is_admin() or current_user.is_manager()) %}
+                        <a href="{{ url_for('work_report_unload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Выгрузить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+<!-- Основной контент -->
+<main class="container mt-4 flex-grow-1">
+    {% block content_work %}{% endblock %}
+</main>
+
+{% endblock %}

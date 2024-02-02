@@ -29,18 +29,19 @@ def index():
 def user_page():
     return render_template('index.html')
 
-@app.route('/overtime_report', methods=['GET', 'POST'])
-def overtime_report():
-    return render_template('overtime_report.html')
-
-
-
 
 
 # маршуты для переработок
-@app.route('/work_report', methods=['GET', 'POST'])
-def work_report():
-    return render_template('work_report.html')
+
+@app.route('/overtime_report', methods=['GET', 'POST'])
+def overtime_report():
+    return render_template('overwork/overtime_report.html')
+
+
+
+
+
+
 
 # просмотр переработок пользователя с пагинацией
 @app.route('/overwork/view_action', methods=['GET', 'POST'])

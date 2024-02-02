@@ -14,4 +14,4 @@ wtforms
 openpyxl
 et-xmlfile
 pipdeptree
-
+WTForms-SQLAlchemy

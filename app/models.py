@@ -65,3 +65,35 @@ class OvertimeReport(db.Model):
 
     def __repr__(self):
         return f'<OvertimeReport {self.id}, {self.project_name}>'
+    
+
+
+
+class ProjectAccounting(db.Model):
+    __tablename__ = 'project_accounting'  # Имя таблицы в базе данных
+
+    id = db.Column(db.Integer, primary_key=True)  # Столбец для ID
+    project_name = db.Column(db.String(255), nullable=False)  # Столбец для наименования проекта
+
+    def __repr__(self):
+        return f'<ProjectAccounting {self.project_name}>'
+    
+
+    from app import db  # Убедитесь, что вы импортировали экземпляр SQLAlchemy как db
+
+class WorkReport(db.Model):
+    __tablename__ = 'work_report'
+
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('project_accounting.id'), nullable=False)
+    profiles_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
+    project_date = db.Column(db.Date, nullable=False)
+    task_performed = db.Column(db.Text, nullable=False)
+    hours_spent = db.Column(db.Numeric, nullable=False)
+
+    # Опционально: определите отношения для доступа к связанным данным
+    profile = db.relationship('Profile', backref=db.backref('work_reports', lazy=True))
+    project = db.relationship('ProjectAccounting', backref=db.backref('work_reports', lazy=True))
+
+    def __repr__(self):
+        return f'<WorkReport {self.task_performed}>'

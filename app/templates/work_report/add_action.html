@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Добавить рабочий отчет</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.project_name.label(class="form-control-label") }}
+            {{ form.project_name(class="form-control") }}
+            {% if form.project_name.errors %}
+                {% for error in form.project_name.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.task_description.label(class="form-control-label") }}
+            {{ form.task_description(class="form-control") }}
+            {% if form.task_description.errors %}
+                {% for error in form.task_description.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.project_date.label(class="form-control-label") }}
+            {{ form.project_date(class="form-control") }}
+            {% if form.project_date.errors %}
+                {% for error in form.project_date.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.hours_spent.label(class="form-control-label") }}
+            {{ form.hours_spent(class="form-control") }}
+            {% if form.hours_spent.errors %}
+                {% for error in form.hours_spent.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
