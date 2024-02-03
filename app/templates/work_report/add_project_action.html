@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "/work_report/base_report_work.html" %}
 
-{% block content %}
+{% block content_work %}
 <h2>Добавить новый проект</h2>
 <form method="post">
     {{ form.hidden_tag() }}
@@ -10,6 +10,15 @@
         {% if form.project_name.errors %}
             <div class="alert alert-danger">
                 {% for error in form.project_name.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {{ form.num.label(class="form-control-label") }}
+        {{ form.num(class="form-control") }}
+        {% if form.num.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.num.errors %}
                     {{ error }}
                 {% endfor %}
             </div>

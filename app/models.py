@@ -59,12 +59,13 @@ class OvertimeReport(db.Model):
     task_date = db.Column(db.Date, nullable=False)
     day_type = db.Column(db.String(50), nullable=False)
     hours_worked = db.Column(db.Numeric(5, 1), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    profiles_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False) 
 
-    user = db.relationship('User', backref=db.backref('overtime_report', lazy=True))
+    profiles = db.relationship('Profile', backref=db.backref('overtime_reports', lazy=True))  
 
     def __repr__(self):
         return f'<OvertimeReport {self.id}, {self.project_name}>'
+
     
 
 
@@ -72,8 +73,10 @@ class OvertimeReport(db.Model):
 class ProjectAccounting(db.Model):
     __tablename__ = 'project_accounting'  # Имя таблицы в базе данных
 
-    id = db.Column(db.Integer, primary_key=True)  # Столбец для ID
-    project_name = db.Column(db.String(255), nullable=False)  # Столбец для наименования проекта
+    id = db.Column(db.Integer, primary_key=True)
+    project_name = db.Column(db.Text, nullable=False)
+    num = db.Column(db.Integer, nullable=False)
+
 
     def __repr__(self):
         return f'<ProjectAccounting {self.project_name}>'
@@ -81,19 +84,48 @@ class ProjectAccounting(db.Model):
 
     from app import db  # Убедитесь, что вы импортировали экземпляр SQLAlchemy как db
 
-class WorkReport(db.Model):
-    __tablename__ = 'work_report'
+
+
+
+class ProjectReports(db.Model):
+    __tablename__ = 'project_reports'
 
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project_accounting.id'), nullable=False)
     profiles_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
-    project_date = db.Column(db.Date, nullable=False)
-    task_performed = db.Column(db.Text, nullable=False)
-    hours_spent = db.Column(db.Numeric, nullable=False)
+    report_date = db.Column(db.Date, nullable=False)
+    location_work = db.Column(db.String(255), nullable=False)
+    hours_spent = db.Column(db.Numeric(5, 1), nullable=False)
+    works = db.Column(db.Text)
+    clarification = db.Column(db.Text)
 
-    # Опционально: определите отношения для доступа к связанным данным
-    profile = db.relationship('Profile', backref=db.backref('work_reports', lazy=True))
-    project = db.relationship('ProjectAccounting', backref=db.backref('work_reports', lazy=True))
+    # Отношения к другим моделям
+    profile = db.relationship('Profile', backref=db.backref('project_reports', lazy=True))
+    project = db.relationship('ProjectAccounting', backref=db.backref('project_reports', lazy=True))
 
     def __repr__(self):
-        return f'<WorkReport {self.task_performed}>'
+        return f'<ProjectReports {self.id}, {self.report_date}>'
+
+
+
+
+
+
+
+
+# class WorkReport(db.Model):
+#     __tablename__ = 'work_report'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     project_id = db.Column(db.Integer, db.ForeignKey('project_accounting.id'), nullable=False)
+#     profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)  # Изменено здесь
+#     project_date = db.Column(db.Date, nullable=False)
+#     task_performed = db.Column(db.Text, nullable=False)
+#     hours_spent = db.Column(db.Numeric, nullable=False)
+
+#     profile = db.relationship('Profile', backref=db.backref('work_reports', lazy=True))  # Изменено здесь
+#     project = db.relationship('ProjectAccounting', backref=db.backref('work_reports', lazy=True))
+
+#     def __repr__(self):
+#         return f'<WorkReport {self.task_performed}>'
+

@@ -1,5 +1,8 @@
-# config.py
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:5892@192.168.0.103/oais_web'
-    SECRET_KEY = 'd2a32dd5c96845fb890beabd3896f3e0'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

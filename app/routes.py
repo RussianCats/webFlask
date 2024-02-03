@@ -47,11 +47,18 @@ def overtime_report():
 @app.route('/overwork/view_action', methods=['GET', 'POST'])
 @login_required
 def view_action():
-    page = request.args.get('page', 1, type=int)  # Получаем номер страницы из запроса
-    reports = OvertimeReport.query.filter_by(user_id=current_user.id)\
-                                  .order_by(desc(OvertimeReport.task_date))\
-                                  .paginate(page=page, per_page=10)  # Пагинация
+    page = request.args.get('page', 1, type=int)
+    user_profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if user_profile:
+        reports = OvertimeReport.query.filter_by(profiles_id=user_profile.id)\
+                                      .order_by(desc(OvertimeReport.task_date))\
+                                      .paginate(page=page, per_page=10)
+    else:
+        reports = []
+        flash('Профиль для текущего пользователя не найден.', 'error')
     return render_template('overwork/view_action.html', reports=reports)
+
+
 
 
 # удаление записей в бд для /overwork/view_action
@@ -59,10 +66,10 @@ def view_action():
 @login_required
 def delete_action(report_id):
     report = OvertimeReport.query.get_or_404(report_id)
-    # Проверка, что текущий пользователь является владельцем записи
-    if report.user_id != current_user.id:
-        flash('Нет прав для удаления этой записи.', 'danger')
-        return redirect(url_for('view_action'))
+    # # Проверка, что текущий пользователь является владельцем записи
+    # if report.user_id != current_user.id:
+    #     flash('Нет прав для удаления этой записи.', 'danger')
+    #     return redirect(url_for('view_action'))
     db.session.delete(report)
     db.session.commit()
     flash('Запись успешно удалена.', 'success')
@@ -73,21 +80,25 @@ def delete_action(report_id):
 def add_action():
     form = OvertimeReportForm()
     if form.validate_on_submit():
-        report = OvertimeReport(
-            project_name=form.project_name.data,
-            task_description=form.task_description.data,
-            # Преобразование даты из формата DD.MM.YYYY в YYYY-MM-DD
-            task_date=datetime.strptime(form.task_date.data, '%d.%m.%Y').strftime('%Y-%m-%d'),
-            day_type=form.day_type.data,
-            hours_worked=form.hours_worked.data,
-            user_id=current_user.id  # Предполагается, что у вас есть аутентификация
-        )
-        db.session.add(report)
-        db.session.commit()
-        flash('Overtime report has been added.', 'success')
-        return redirect(url_for('add_action'))  # Перенаправление на главную страницу или другую страницу
+        user_profile = Profile.query.filter_by(user_id=current_user.id).first()
+        if user_profile:
+            report = OvertimeReport(
+                project_name=form.project_name.data,
+                task_description=form.task_description.data,
+                # Преобразование даты из формата DD.MM.YYYY в YYYY-MM-DD
+                task_date=datetime.strptime(form.task_date.data, '%d.%m.%Y').strftime('%Y-%m-%d'),
+                day_type=form.day_type.data,
+                hours_worked=form.hours_worked.data,
+                profiles_id=user_profile.id
+            )
+            db.session.add(report)
+            db.session.commit()
+            flash('Отчет о переработке добавлен.', 'success')
+        else:
+            flash('Профиль для текущего пользователя не найден.', 'error')
+        return redirect(url_for('add_action'))
 
-    return render_template('/overwork/add_action.html', title='Add Overtime Report', form=form)
+    return render_template('overwork/add_action.html', title='Добавить отчет о переработке', form=form)
 
 # загрузить
 @app.route('/overwork/upload_action', methods=['GET', 'POST'])
@@ -139,7 +150,7 @@ def unload_action():
             OvertimeReport,
             Profile.name,
             Profile.working_day
-        ).join(Profile, OvertimeReport.user_id == Profile.user_id)\
+        ).join(Profile, OvertimeReport.profiles_id == Profile.user_id)\
         .filter(OvertimeReport.task_date >= start_date, OvertimeReport.task_date <= end_date)\
         .order_by(Profile.name, OvertimeReport.task_date)\
         .all()

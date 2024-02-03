@@ -1,6 +1,6 @@
 # forms.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, DateField, DecimalField, SelectField, SubmitField
+from wtforms import StringField, TextAreaField, DateField, DecimalField, SelectField, SubmitField, IntegerField, HiddenField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, NumberRange
 from app.models import Profile, ProjectAccounting
@@ -17,11 +17,26 @@ class OvertimeReportForm(FlaskForm):
 # для добавления наименования
 class ProjectForm(FlaskForm):
     project_name = StringField('Наименование проекта', validators=[DataRequired()])
+    num = IntegerField('Номер проекта', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
+# class WorkReportForm(FlaskForm):
+#     project_name = StringField('Наименование проекта', validators=[DataRequired(), Length(max=255)])
+#     task_description = TextAreaField('Задача, которую выполнил', validators=[DataRequired()])
+#     project_date = DateField('Дата проекта', format='%Y-%m-%d', validators=[DataRequired()])
+#     hours_spent = DecimalField('Затраченное время в часах', validators=[DataRequired()], places=2)
+#     submit = SubmitField('Добавить')
+
+
 class WorkReportForm(FlaskForm):
-    project_name = StringField('Наименование проекта', validators=[DataRequired(), Length(max=255)])
-    task_description = TextAreaField('Задача, которую выполнил', validators=[DataRequired()])
-    project_date = DateField('Дата проекта', format='%Y-%m-%d', validators=[DataRequired()])
-    hours_spent = DecimalField('Затраченное время в часах', validators=[DataRequired()], places=2)
-    submit = SubmitField('Добавить')
+    report_date = DateField('Дата', format='%Y-%m-%d', validators=[DataRequired()])
+    location_work = SelectField('Выезд/офис', choices=[('Офис', 'Офис'), ('Выезд', 'Выезд')], validators=[DataRequired()])
+    project_id = HiddenField('ID Проекта', validators=[DataRequired()])
+    hours_spent = DecimalField('Затраченное время, ч', validators=[DataRequired(), NumberRange(min=0)])
+    works = SelectField('Работы', choices=[('676', '676'), ('SDL', 'SDL'), ('SM', 'SM'), ('Атдок', 'Атдок'), ('Аттестация', 'Аттестация'),
+                                            ('АУ', 'АУ'), ('Аудит', 'Аудит'), ('Категорирование', 'Категорирование'), ('Лицензирование', 'Лицензирование'),
+                                            ('Оргдок', 'Оргдок'), ('ОТР', 'ОТР'), ('Пентест', 'Пентест'), ('ПНР', 'ПНР'), ('ППО', 'ППО'), ('Развитие', 'Развитие'),
+                                            ('РД', 'РД'), ('САИК', 'САИК'), ('Сертдок', 'Сертдок'), ('Техдок', 'Техдок'), ('ТП', 'ТП'), ('Установка', 'Установка'),
+                                            ('ЦМ', 'ЦМ')], validators=[DataRequired()])
+    clarification = TextAreaField('Уточнение')
+    submit = SubmitField('Отправить')
