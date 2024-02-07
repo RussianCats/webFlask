@@ -145,16 +145,15 @@ def unload_action():
             return redirect(url_for('unload_action'))  # Вернуться к форме
 
         # Получение данных из БД
-        # Извлечение записей в заданном диапазоне дат
+        # Извлечение записей в заданном диапазоне дат для всех пользователей
         reports = db.session.query(
             OvertimeReport,
             Profile.name,
             Profile.working_day
-        ).join(Profile, OvertimeReport.profiles_id == Profile.user_id)\
+        ).join(Profile, OvertimeReport.profiles_id == Profile.id)\
         .filter(OvertimeReport.task_date >= start_date, OvertimeReport.task_date <= end_date)\
         .order_by(Profile.name, OvertimeReport.task_date)\
         .all()
-
                 
 
         
@@ -244,7 +243,7 @@ def unload_action():
         
         # Отправка файла пользователю
         virtual_workbook.seek(0)
-        return send_file(virtual_workbook, as_attachment=True, download_name='overtime_report.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(virtual_workbook, as_attachment=True, download_name='отчет по переработкам.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     # Если это GET запрос, просто отображаем форму
     return render_template('overwork/unload_action.html')
 

@@ -11,7 +11,7 @@ class OvertimeReportForm(FlaskForm):
     task_description = TextAreaField('Описание задачи', validators=[DataRequired()])
     task_date = StringField('Дата задачи', validators=[DataRequired()], render_kw={"class": "form-control datepicker"})
     day_type = SelectField('Тип дня', choices=[('Рабочий', 'Рабочий'),('Выходной', 'Выходной') , ('Отпускной', 'Отпускной'), ('Больничный', 'Больничный'), ('Командировочный', 'Командировочный')], validators=[DataRequired()])
-    hours_worked = DecimalField('Отработанные часы', validators=[DataRequired(), NumberRange(min=0)])
+    hours_worked = DecimalField('Отработанные часы', validators=[DataRequired(), NumberRange(min=0, max=24)], places=2)
     submit = SubmitField('Отправить')
 
 # для добавления наименования
@@ -32,7 +32,7 @@ class WorkReportForm(FlaskForm):
     report_date = DateField('Дата', format='%Y-%m-%d', validators=[DataRequired()])
     location_work = SelectField('Выезд/офис', choices=[('Офис', 'Офис'), ('Выезд', 'Выезд')], validators=[DataRequired()])
     project_id = HiddenField('ID Проекта', validators=[DataRequired()])
-    hours_spent = DecimalField('Затраченное время, ч', validators=[DataRequired(), NumberRange(min=0)])
+    hours_spent = DecimalField('Затраченное время, ч', validators=[DataRequired(), NumberRange(min=0, max=24)], places=2)
     works = SelectField('Работы', choices=[('676', '676'), ('SDL', 'SDL'), ('SM', 'SM'), ('Атдок', 'Атдок'), ('Аттестация', 'Аттестация'),
                                             ('АУ', 'АУ'), ('Аудит', 'Аудит'), ('Категорирование', 'Категорирование'), ('Лицензирование', 'Лицензирование'),
                                             ('Оргдок', 'Оргдок'), ('ОТР', 'ОТР'), ('Пентест', 'Пентест'), ('ПНР', 'ПНР'), ('ППО', 'ППО'), ('Развитие', 'Развитие'),

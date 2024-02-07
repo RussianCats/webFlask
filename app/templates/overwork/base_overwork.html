@@ -14,7 +14,6 @@
                 <div class="list-group list-group-horizontal">
                     <a href="{{ url_for('view_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Просмотр</a>
                     <a href="{{ url_for('add_action') }}" class="list-group-item list-group-item-action  centered-text custom-btn-color">Добавить</a>
-                    <a href="{{ url_for('upload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Загрузить</a>
                     {% if current_user.is_authenticated and (current_user.is_admin() or current_user.is_manager()) %}
                         <a href="{{ url_for('unload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Выгрузить</a>
                     {% endif %}

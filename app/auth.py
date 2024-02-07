@@ -30,39 +30,44 @@ def role_required(*roles):
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@login_required  
-@role_required('is_admin')
+@login_required
+@role_required('is_admin')  # Предполагается, что функция проверяет, является ли пользователь администратором
 def register():
-    login = request.form.get("login")
-    password = request.form.get("password")
-    password2 = request.form.get("password2")
-    role_id = request.form.get("role")
-    fio = request.form.get("fio")
-    
     if request.method == 'POST':
-        if not(login or password or password2 or role_id or fio):
-            flash('Заполните поля')
-        elif password != password2:
-            flash('Пароли не одинаковые')
-        else:
-            dic_roles = {
-                "admin": 1,
-                "manager": 2,
-                "employee": 3
-            }
-            role_id = dic_roles[f"{request.form.get('role')}"] 
-            hash_psw = generate_password_hash(password)
-            new_user = User(login=login, psw=hash_psw, roles_id=role_id)
-            # сохраняем нового пользователя
-            db.session.add(new_user)
-            db.session.flush() 
+        login = request.form.get("login")
+        password = request.form.get("password")
+        password2 = request.form.get("password2")
+        role_code = request.form.get("role") 
+        fio = request.form.get("fio")
+        working_day = request.form.get("working_day")
 
-            new_profile = Profile(name=fio, user_id=new_user.id)
-            # сохраняем новое фио 
-            db.session.add(new_profile)
-            db.session.commit()
+        if not all([login, password, password2, role_code, fio]):
+            flash('Заполните все поля', 'warning')
+        elif password != password2:
+            flash('Пароли не совпадают', 'warning')
+        else:
+            role = Role.query.filter_by(code=role_code).first()
+            if not role:
+                flash('Роль не найдена', 'danger')
+                return redirect(url_for('register'))
+
+            hashed_password = generate_password_hash(password)
+            new_user = User(login=login, psw=hashed_password, role=role)
             
-            return redirect(url_for('login'))
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                
+                # После создания пользователя добавляем профиль
+                new_profile = Profile(name=fio, user_id=new_user.id, working_day=working_day)  # Предполагается некоторое значение по умолчанию для working_day
+                db.session.add(new_profile)
+                db.session.commit()
+
+                flash('Пользователь успешно зарегистрирован', 'success')
+                return redirect(url_for('register'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Ошибка при создании пользователя: {str(e)}', 'danger')
 
     return render_template('/auth/register.html')
 
