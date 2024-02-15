@@ -5,6 +5,10 @@
     .centered-text {
         text-align: center; /* Центрирует текст */
     }
+    .list-group-item.custom-btn-color.active {
+        background-color: #007bff; /* Голубой цвет */
+        color: white; /* Белый текст */
+    }
 </style>
 <div class="container-fluid">
     <div class="row">
@@ -12,16 +16,14 @@
         <div class="container">
             <div class="center-buttons">
                 <div class="list-group list-group-horizontal">
-                    <a href="{{ url_for('view_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Просмотр</a>
-                    <a href="{{ url_for('add_action') }}" class="list-group-item list-group-item-action  centered-text custom-btn-color">Добавить</a>
+                    <a href="{{ url_for('view_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color {% if request.path == url_for('view_action') %}active{% endif %}">Просмотр</a>
+                    <a href="{{ url_for('add_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color {% if request.path == url_for('add_action') %}active{% endif %}">Добавить</a>
                     {% if current_user.is_authenticated and (current_user.is_admin() or current_user.is_manager()) %}
-                        <a href="{{ url_for('unload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color">Выгрузить</a>
+                        <a href="{{ url_for('unload_action') }}" class="list-group-item list-group-item-action centered-text custom-btn-color {% if request.path == url_for('unload_action') %}active{% endif %}">Выгрузить</a>
                     {% endif %}
                 </div>
             </div>
         </div>
-
-        
     </div>
 </div>
 <!-- Основной контент -->

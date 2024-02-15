@@ -2,7 +2,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, DateField, DecimalField, SelectField, SubmitField, IntegerField, HiddenField
 from wtforms_sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Length, NumberRange
+from wtforms.validators import DataRequired, Length, NumberRange, Optional
 from app.models import Profile, ProjectAccounting
 
 #добавить переработки
@@ -14,10 +14,9 @@ class OvertimeReportForm(FlaskForm):
     hours_worked = DecimalField('Отработанные часы', validators=[DataRequired(), NumberRange(min=0, max=24)], places=2)
     submit = SubmitField('Отправить')
 
-# для добавления наименования
 class ProjectForm(FlaskForm):
     project_name = StringField('Наименование проекта', validators=[DataRequired()])
-    num = IntegerField('Номер проекта', validators=[DataRequired()])
+    num = StringField('Номер проекта', validators=[Optional()])
     submit = SubmitField('Добавить')
 
 # class WorkReportForm(FlaskForm):

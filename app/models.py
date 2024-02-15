@@ -13,13 +13,29 @@ class Role(db.Model):
     def __repr__(self):
         return f'<Role {self.id}>'
     
+
+# Модель отделов
+class Department(db.Model):
+    __tablename__ = 'departments'
+    id = db.Column(db.Integer, primary_key=True)
+    department_name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
+
+    # Отношение к профилям
+    profiles = db.relationship('Profile', backref='department', lazy=True)
+
+    def __repr__(self):
+        return f'<Department {self.department_name}>'
+
+
 class Profile(db.Model):
     __tablename__ = 'profiles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    working_day = db.Column(db.Numeric, nullable=False)  # Добавленный столбец
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    working_day = db.Column(db.Numeric, nullable=False)  
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
+    departments_id = db.Column(db.Integer, db.ForeignKey('departments.id'), unique=True)
 
     user = db.relationship('User', backref=db.backref('profiles', lazy=True))
 
@@ -75,7 +91,7 @@ class ProjectAccounting(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.Text, nullable=False)
-    num = db.Column(db.Integer, nullable=False)
+    num = db.Column(db.Text)
 
 
     def __repr__(self):

@@ -1,13 +1,16 @@
 {% extends "/work_report/base_report_work.html" %}
 
 {% block content_work %}
+
+
 <h2>Добавить новый отчет</h2>
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     {{ form.project_id }}
     <div class="form-group">
         <label for="project_name">Проект</label>
-        <input type="text" id="project_name" class="form-control" placeholder="Начните вводить название проекта...">
+        <input type="text" id="project_name" class="form-control" placeholder="Начните вводить название проекта..." autocomplete="off">
+        <div id="project_search_results" class="list-group"></div> <!-- Контейнер для результатов поиска -->
     </div>
     <div class="row">
         <div class="col-md-4">
@@ -39,22 +42,42 @@
     document.addEventListener('DOMContentLoaded', function() {
         var projectInput = document.getElementById('project_name');
         var projectIdField = document.getElementById('project_id');
+        var searchResults = document.getElementById('project_search_results');
 
         projectInput.addEventListener('input', function() {
             var query = projectInput.value;
-            if(query.length < 2) { return; } // Минимальная длина запроса
+            if(query.length < 2) { 
+                searchResults.innerHTML = ''; // Очистить предыдущие результаты
+                return; 
+            } // Минимальная длина запроса
 
             fetch(`/work_report/search-projects?query=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
+                searchResults.innerHTML = ''; // Очистить предыдущие результаты
                 if (data.projects && data.projects.length > 0) {
-                    var project = data.projects[0]; // Берем первый найденный проект
-                    projectInput.value = project.name; // Автоматически заполняем наименование проекта
-                    projectIdField.value = project.id; // Заполняем скрытое поле ID проекта
+                    data.projects.forEach(function(project) {
+                        var a = document.createElement('a');
+                        a.innerText = project.name;
+                        a.classList.add('list-group-item', 'list-group-item-action');
+                        a.href = '#';
+                        a.addEventListener('click', function() {
+                            projectInput.value = project.name; // Заполнить поле ввода выбранным проектом
+                            projectIdField.value = project.id; // Сохранить ID проекта
+                            searchResults.innerHTML = ''; // Очистить результаты поиска
+                        });
+                        searchResults.appendChild(a);
+                    });
+                } else {
+                    var noResults = document.createElement('div');
+                    noResults.innerText = 'Нет результатов';
+                    noResults.classList.add('list-group-item');
+                    searchResults.appendChild(noResults);
                 }
             })
             .catch(error => console.error('Ошибка:', error));
         });
     });
 </script>
+
 {% endblock %}

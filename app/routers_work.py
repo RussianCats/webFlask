@@ -116,9 +116,22 @@ def work_report_add_project():
         db.session.add(project)
         db.session.commit()
         flash('Проект успешно добавлен!')
-        return redirect(url_for('work_report'))  # Перенаправьте пользователя куда-либо после добавления проекта
+        return redirect(url_for('work_report_add_project'))
 
-    return render_template('work_report/add_project_action.html', form=form)
+    projects = ProjectAccounting.query.all()
+    return render_template('work_report/add_project_action.html', form=form, projects=projects)
+
+# кнопка удаления проектов 
+@app.route('/delete_project/<int:project_id>', methods=['POST'])
+@login_required
+@role_required('is_admin')  # или другая проверка на разрешение выполнения операции
+def delete_project(project_id):
+    project = ProjectAccounting.query.get_or_404(project_id)
+    db.session.delete(project)
+    db.session.commit()
+    flash('Проект успешно удален!')
+    return redirect(url_for('work_report_add_project'))
+
 
 # форматирование ФИО
 def format_name(full_name):
